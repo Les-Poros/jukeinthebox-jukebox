@@ -1,6 +1,9 @@
 let music;
 let idmusic;
 let sound;
+let duration;
+let timer;
+
 function recupFile() {
   $.ajax({
     url: "https://webetu.iutnc.univ-lorraine.fr/www/rimet2u/jukeinthebox/index.php",
@@ -9,22 +12,32 @@ function recupFile() {
       "Authorization": "Basic " + btoa("rimet2u:070998.A")
     }
   }).done(function (data) {
-    console.log(data);
     let json = JSON.parse(data);
     if (json["pistes"][0] != null) {
       if (idmusic != json["pistes"][0]["idFile"]) {
-        music = "";
-        json["pistes"][0]["piste"]["artistes"].forEach(artiste => {
-          music += artiste["nom"];
-        });
-        music += "-" + json["pistes"][0]["piste"]["nom"];
         idmusic = json["pistes"][0]["idFile"];
+        music=NomMusic(json["pistes"][0]["piste"]);
         playFirstMusic();
-        $(".act").html(descPiste(json["pistes"][0]["piste"]));
+        descPiste(json["pistes"][0]["piste"]);
+      }
+      $(".next").html("<h3>Musique suivante</h3>");
+      for(let i=1;i< json["pistes"].length;i++){
+        pisteFile(json["pistes"][i]["piste"]);
       }
     }
     else $(".act").html("Musique Actuelle : Aucune");
   });
+}
+
+function NomMusic(piste) {
+  music = "";
+  piste["artistes"].forEach(artiste => {
+    music += artiste["nom"];
+  });
+  music += "-" + piste["nom"];
+  var regex = /\'/gi;
+  music=music.replace(regex, '');
+  return music;
 }
 
 function nextMusic() {
@@ -36,6 +49,7 @@ function nextMusic() {
       "Authorization": "Basic " + btoa("rimet2u:070998.A")
     }
   });
+  clearTimer();
   recupFile();
 }
 
@@ -52,12 +66,17 @@ function playFirstMusic() {
     if (xhr.status == 200) {
       sound = new Howl({
         src: [window.URL.createObjectURL(xhr.response)],
+        onplay: function() {
+          duration=sound.duration();
+          Timer();
+          $('.duration').html(tempsMinute(Math.round(duration)));
+        },
+        onend: function() {
+          nextMusic();
+        },
         format: ["mp3"]
       })
       sound.play();
-      sound.on('end', function () {
-        nextMusic();
-      });
     }
   });
 
@@ -68,33 +87,74 @@ function playFirstMusic() {
 };
 
 function descPiste(piste) {
-  let desc="<h1>" + piste["nom"] + "</h1>";
-  desc += "<p class='artiste'>Artistes : ";
+  let info = "<div><img src='" + piste["image"] + "'></div><h1>" + piste["nom"] + "</h1><h3>";
   piste["artistes"].forEach(artiste => {
-    desc += artiste["prénom"] +" "+ artiste["nom"]+" / "
+    info += artiste["prénom"] + " " + artiste["nom"] + " / "
   });
-  desc += "<p class='genre'>Genre : ";
+  info = info.substr(0, info.length - 2);
+  info += " </h3><h3>";
   piste["genres"].forEach(genre => {
-    desc += genre + " / "
+    info += genre + " / "
   });
-  desc += "</p><img src='" + piste["image"] + "'><div class='albums'>ALBUMS";
+  info = info.substr(0, info.length - 2);
+  info += "</h3>";
+  $(".info").html(info);
+
+  let albums= "";
   piste["albums"].forEach(album => {
-    desc += "<p class='nom'>Album : " + album["nom"] + "</p> <p class='artiste'>Artistes : ";
+    albums += "<div class='album'><p class='nom'>" + album["nom"] + "</p> <p class='artiste'> par ";
     album["artistes"].forEach(artiste => {
-      desc += artiste["nom"] + " " + artiste["prénom"] + " / ";
+      albums += artiste["prénom"] + " " + artiste["nom"] + " / ";
     });
-    desc += "<p class='genre'> Genre : ";
+    albums = albums.substr(0, albums.length - 2);
+    albums += "<p class='genre'>";
     album["genres"].forEach(genre => {
-      desc += genre + "/ ";
+      albums += genre + " / ";
     });
-    desc += "</p><img src='" + album["image"] + "'>"
+    albums = albums.substr(0, albums.length - 2);
+    albums += "</p><img src='" + album["image"] + "'></div>"
   });
-  desc += "</div>"
-  return desc;
+  albums += "</div>";
+  $(".albums").html(albums);
 }
 
-recupFile();
+function pisteFile(piste){
+  let pisteFile="<div class='pisteFile'><img src='"+piste["image"]+"'><p>"+piste["nom"]+" - ";
+  piste["artistes"].forEach(artiste => {
+    pisteFile += artiste["prénom"] + " " + artiste["nom"] + " / ";
+  });
+  pisteFile = pisteFile.substr(0, pisteFile.length - 2)+"</p></div>";
+  $(".next").append(pisteFile);
+}
+function tempsMinute(secs) {
+  var minutes = Math.floor(secs / 60) || 0;
+  var seconds = (secs - minutes * 60) || 0;
+
+  return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+}
+
+function Timer(){
+  let seek=sound.seek()
+  $('.timer').html(tempsMinute(Math.round(seek)));
+  $('.pourcentage').css("width",(seek/duration)*100+"%");
+  timer=setTimeout(function(){
+    Timer()
+  },1000)
+}
+
+function clearTimer(){
+  $('.timer').html("");
+  $('.duration').html("");
+  clearTimeout(timer);
+  duration=0;
+  $('.pourcentage').css("width",0);
+}
 
 $(".next").click(function () {
   nextMusic();
 });
+
+recupFile();
+setInterval(function () {
+  recupFile();
+}, 5000);

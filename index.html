@@ -1,16 +1,33 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <title>Juke in the box</title>
+  <link rel="stylesheet" media="screen" type="text/css" href="index.css" />
 </head>
 
 <body>
 </body>
-<div class="act">Musique Actuelle : </div>
-<div class="next">NEXT</div>
+<div class="main-container">
+  <div class="act">
+    <div class="info"></div>
+    <div class="temps">
+      
+      <div class="barre">
+          <div class="timer"></div>
+          <div class="pourcentage"></div>
+          <div class="duration"></div>
+      </div>
+    </div>
+    <h3 class='delimitAlbum'>Apparait dans :</h3>
+    <div class="albums"></div>
+  </div>
+  <div class="next"></div>
+</div>
 <script>window.$ = window.jQuery = require('jquery');</script>
 <script src="node_modules/howler/dist/howler.min.js"></script>
 <script src="index.js"></script>
 </body>
+
 </html>
