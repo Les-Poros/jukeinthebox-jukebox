@@ -3,6 +3,7 @@ let idmusic;
 let sound;
 let duration;
 let timer;
+let file = "";
 
 function recupFile() {
   $.ajax({
@@ -12,20 +13,23 @@ function recupFile() {
       "Authorization": "Basic " + btoa("rimet2u:070998.A")
     }
   }).done(function (data) {
-    let json = JSON.parse(data);
-    if (json["pistes"][0] != null) {
-      if (idmusic != json["pistes"][0]["idFile"]) {
-        idmusic = json["pistes"][0]["idFile"];
-        music=NomMusic(json["pistes"][0]["piste"]);
-        playFirstMusic();
-        descPiste(json["pistes"][0]["piste"]);
+    if (data != file) {
+      file = data;
+      let json = JSON.parse(data);
+      if (json["pistes"][0] != null) {
+        if(json["pistes"][0]["idFile"]!=idmusic){
+          idmusic=json["pistes"][0]["idFile"];
+          music = NomMusic(json["pistes"][0]["piste"]);
+          playFirstMusic();
+          descPiste(json["pistes"][0]["piste"]);
+        }
+        $(".next").html("<h3>Musique suivante</h3>");
+        for (let i = 1; i < json["pistes"].length; i++) {
+          pisteFile(json["pistes"][i]["piste"]);
+        }
       }
-      $(".next").html("<h3>Musique suivante</h3>");
-      for(let i=1;i< json["pistes"].length;i++){
-        pisteFile(json["pistes"][i]["piste"]);
-      }
+      else $(".act").html("Musique Actuelle : Aucune");
     }
-    else $(".act").html("Musique Actuelle : Aucune");
   });
 }
 
@@ -36,42 +40,35 @@ function NomMusic(piste) {
   });
   music += "-" + piste["nom"];
   var regex = /\'/gi;
-  music=music.replace(regex, '');
+  music = music.replace(regex, '');
   return music;
 }
 
 function nextMusic() {
-  sound.unload();
   $.ajax({
-    url: 'https://webetu.iutnc.univ-lorraine.fr/www/rimet2u/jukeinthebox/next.php?' + $.param({ "id": idmusic }),
+    url: 'https://webetu.iutnc.univ-lorraine.fr/www/rimet2u/jukeinthebox/next.php',
     type: 'DELETE',
     headers: {
       "Authorization": "Basic " + btoa("rimet2u:070998.A")
     }
   });
   clearTimer();
+  Howler.unload();
   recupFile();
 }
 
 function playFirstMusic() {
   var xhr = new XMLHttpRequest();
-  xhr.addEventListener('progress', function (e) {
-    if (e.lengthComputable) {
-      var percentComplete = (e.loaded / e.total) * 100;
-      console.log('Status: Downloading music: ' + percentComplete + '%');
-    }
-  });
-
   xhr.addEventListener('load', function (blob) {
     if (xhr.status == 200) {
       sound = new Howl({
         src: [window.URL.createObjectURL(xhr.response)],
-        onplay: function() {
-          duration=sound.duration();
+        onplay: function () {
+          duration = sound.duration();
           Timer();
           $('.duration').html(tempsMinute(Math.round(duration)));
         },
-        onend: function() {
+        onend: function () {
           nextMusic();
         },
         format: ["mp3"]
@@ -100,7 +97,7 @@ function descPiste(piste) {
   info += "</h3>";
   $(".info").html(info);
 
-  let albums= "";
+  let albums = "";
   piste["albums"].forEach(album => {
     albums += "<div class='album'><p class='nom'>" + album["nom"] + "</p> <p class='artiste'> par ";
     album["artistes"].forEach(artiste => {
@@ -118,12 +115,12 @@ function descPiste(piste) {
   $(".albums").html(albums);
 }
 
-function pisteFile(piste){
-  let pisteFile="<div class='pisteFile'><img src='"+piste["image"]+"'><p>"+piste["nom"]+" - ";
+function pisteFile(piste) {
+  let pisteFile = "<div class='pisteFile'><img src='" + piste["image"] + "'><p>" + piste["nom"] + " - ";
   piste["artistes"].forEach(artiste => {
     pisteFile += artiste["prénom"] + " " + artiste["nom"] + " / ";
   });
-  pisteFile = pisteFile.substr(0, pisteFile.length - 2)+"</p></div>";
+  pisteFile = pisteFile.substr(0, pisteFile.length - 2) + "</p></div>";
   $(".next").append(pisteFile);
 }
 function tempsMinute(secs) {
@@ -133,21 +130,21 @@ function tempsMinute(secs) {
   return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
 }
 
-function Timer(){
-  let seek=sound.seek()
+function Timer() {
+  let seek = sound.seek()
   $('.timer').html(tempsMinute(Math.round(seek)));
-  $('.pourcentage').css("width",(seek/duration)*100+"%");
-  timer=setTimeout(function(){
+  $('.pourcentage').css("width", (seek / duration) * 100 + "%");
+  timer = setTimeout(function () {
     Timer()
-  },1000)
+  }, 1000)
 }
 
-function clearTimer(){
+function clearTimer() {
   $('.timer').html("");
   $('.duration').html("");
   clearTimeout(timer);
-  duration=0;
-  $('.pourcentage').css("width",0);
+  duration = 0;
+  $('.pourcentage').css("width", 0);
 }
 
 $(".next").click(function () {
