@@ -17,8 +17,8 @@ function recupFile() {
       file = data;
       let json = JSON.parse(data);
       if (json["pistes"][0] != null) {
-        if(json["pistes"][0]["idFile"]!=idmusic){
-          idmusic=json["pistes"][0]["idFile"];
+        if (json["pistes"][0]["idFile"] != idmusic) {
+          idmusic = json["pistes"][0]["idFile"];
           music = NomMusic(json["pistes"][0]["piste"]);
           playFirstMusic();
           descPiste(json["pistes"][0]["piste"]);
@@ -28,7 +28,10 @@ function recupFile() {
           pisteFile(json["pistes"][i]["piste"]);
         }
       }
-      else $(".act").html("Musique Actuelle : Aucune");
+      else {
+        $(".info").html("Musique Actuelle : Aucune");
+        $(".albums").html("Musique Actuelle : Aucune");
+      }
     }
   });
 }

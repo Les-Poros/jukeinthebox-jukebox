@@ -1,8 +1,13 @@
 {
-    "name": "your-app",
-    "version": "0.1.0",
-    "main": "main.js",
-    "scripts": {
-      "start": "electron ."
-    }
+  "name": "your-app",
+  "version": "0.1.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "4.0.1",
+    "howler": "^2.1.1",
+    "jquery": "^3.3.1"
   }
+}
