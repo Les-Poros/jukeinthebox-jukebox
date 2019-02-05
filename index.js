@@ -7,7 +7,7 @@ let file = "";
 
 function recupFile() {
   $.ajax({
-    url: "https://webetu.iutnc.univ-lorraine.fr/www/rimet2u/jukeinthebox/index.php",
+    url: "https://webetu.iutnc.univ-lorraine.fr/www/rimet2u/jukeinthebox/",
     context: document.body,
     headers: {
       "Authorization": "Basic " + btoa("rimet2u:070998.A")
@@ -15,7 +15,7 @@ function recupFile() {
   }).done(function (data) {
     if (data != file) {
       file = data;
-      let json = JSON.parse(data);
+      let json = data;
       if (json["pistes"][0] != null) {
         if (json["pistes"][0]["idFile"] != idmusic) {
           idmusic = json["pistes"][0]["idFile"];
@@ -41,7 +41,7 @@ function NomMusic(piste) {
   piste["artistes"].forEach(artiste => {
     music += artiste["nom"];
   });
-  music += "-" + piste["nom"];
+  music += "-" + piste["nomPiste"];
   var regex = /\'/gi;
   music = music.replace(regex, '');
   return music;
@@ -87,7 +87,7 @@ function playFirstMusic() {
 };
 
 function descPiste(piste) {
-  let info = "<div><img src='" + piste["image"] + "'></div><h1>" + piste["nom"] + "</h1><h3>";
+  let info = "<div><img src='" + piste["imagePiste"] + "'></div><h1>" + piste["nomPiste"] + "</h1><h3>";
   piste["artistes"].forEach(artiste => {
     info += artiste["prénom"] + " " + artiste["nom"] + " / "
   });
@@ -102,7 +102,7 @@ function descPiste(piste) {
 
   let albums = "";
   piste["albums"].forEach(album => {
-    albums += "<div class='album'><p class='nom'>" + album["nom"] + "</p> <p class='artiste'> par ";
+    albums += "<div class='album'><p class='nom'>" + album["nomAlbum"] + "</p> <p class='artiste'> par ";
     album["artistes"].forEach(artiste => {
       albums += artiste["prénom"] + " " + artiste["nom"] + " / ";
     });
@@ -112,14 +112,14 @@ function descPiste(piste) {
       albums += genre + " / ";
     });
     albums = albums.substr(0, albums.length - 2);
-    albums += "</p><img src='" + album["image"] + "'></div>"
+    albums += "</p><img src='" + album["imageAlbum"] + "'></div>"
   });
   albums += "</div>";
   $(".albums").html(albums);
 }
 
 function pisteFile(piste) {
-  let pisteFile = "<div class='pisteFile'><img src='" + piste["image"] + "'><p>" + piste["nom"] + " - ";
+  let pisteFile = "<div class='pisteFile'><img src='" + piste["imagePiste"] + "'><p>" + piste["nomPiste"] + " - ";
   piste["artistes"].forEach(artiste => {
     pisteFile += artiste["prénom"] + " " + artiste["nom"] + " / ";
   });
