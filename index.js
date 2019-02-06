@@ -49,7 +49,7 @@ function NomMusic(piste) {
 
 function nextMusic() {
   $.ajax({
-    url: 'https://webetu.iutnc.univ-lorraine.fr/www/rimet2u/jukeinthebox/next.php',
+    url: 'https://webetu.iutnc.univ-lorraine.fr/www/rimet2u/jukeinthebox/next',
     type: 'DELETE',
     headers: {
       "Authorization": "Basic " + btoa("rimet2u:070998.A")
