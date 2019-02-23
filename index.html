@@ -8,25 +8,28 @@
 </head>
 
 <body>
-</body>
-<div class="main-container">
-  <div class="act">
-    <div class="info"></div>
-    <div class="temps">
-      <div class="barre">
+  <div class="main-container">
+    <div class="act">
+      <div class="info"></div>
+      <div class="temps">
+        <div class="barre">
           <div class="timer"></div>
           <div class="pourcentage"></div>
           <div class="duration"></div>
+        </div>
       </div>
+      <h3 class='delimitAlbum'>Apparait dans :</h3>
+      <div class="albums"></div>
     </div>
-    <h3 class='delimitAlbum'>Apparait dans :</h3>
-    <div class="albums"></div>
+    <div class="next" v-on:click='nextMusic()'></div>
   </div>
-  <div class="next"></div>
-</div>
-<script>window.$ = window.jQuery = require('jquery');</script>
-<script src="node_modules/howler/dist/howler.min.js"></script>
-<script src="index.js"></script>
+  </div>
+  <!--<script>window.$ = window.jQuery = require('jquery');</script>-->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios@0.18.0/dist/axios.js"></script>
+  <script src="node_modules/howler/dist/howler.min.js"></script>
+  <script src="token.js"></script>
+  <script src="index.js"></script>
 </body>
 
 </html>
