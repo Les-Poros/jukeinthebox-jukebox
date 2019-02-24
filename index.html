@@ -10,19 +10,64 @@
 <body>
   <div class="main-container">
     <div class="act">
-      <div class="info"></div>
+      <div class="info">
+        <div><img :src='firstMusic.imagePiste' v-if='firstMusic.imagePiste!=null'></div>
+        <h1 v-if='firstMusic.nomPiste!=null'>{{firstMusic.nomPiste}}</h1>
+        <h1 v-else>Pas de musique</h1>
+        <hr/>
+        <h3>
+          <span v-for="(artiste,index) in firstMusic.artistes">{{artiste.prénom}} {{artiste.nom}} 
+            <span v-if="index != Object.keys(firstMusic.artistes).length - 1">
+            /
+           </span> 
+          </span>
+        </h3>
+        <hr/>
+        <h3>
+            <span v-for="(genre,index) in firstMusic.genres">{{genre}}
+                <span v-if="index != Object.keys(firstMusic.genres).length - 1">
+                    /
+                </span> 
+            </span>
+          </h3>
+          
+      </div>
       <div class="temps">
         <div class="barre">
-          <div class="timer"></div>
-          <div class="pourcentage"></div>
-          <div class="duration"></div>
+          <div class="timer">{{tempsMinute(actTimer)}}</div>
+          <div class="pourcentage" v-bind:style="{width:pourcentage}"></div>
+          <div class="duration">{{tempsMinute(duration)}}</div>
         </div>
       </div>
+
       <h3 class='delimitAlbum'>Apparait dans :</h3>
-      <div class="albums"></div>
+
+      <div class="albums">
+        <div class='album' v-for="(album,index) in firstMusic.albums">
+          <img :src='album.imageAlbum'>
+          <p class='nom'>{{album.nomAlbum}}</p> 
+          <p class='artiste'> par 
+            <span v-for="(artiste,index) in album.artistes">{{artiste.prénom}} {{artiste.nom}} 
+            <span v-if="index != Object.keys(album.artistes).length - 1">
+                /
+            </span>
+        </p>
+        <p class='genre'> 
+            <span v-for="(genre,index) in album.genres">{{genre}}
+            <span v-if="index != Object.keys(album.genres).length - 1">
+                /
+            </span>
+        </p>
+        </span> 
+      </div>
     </div>
-    <div class="next" v-on:click='nextMusic()'></div>
   </div>
+    <div class="next" v-on:click='nextMusic()'>
+      <h3>Musiques suivantes</h3>
+      <span v-for='(piste,index) in file.pistes' v-if="index!=0"><div class='pisteFile' ><img :src='piste.piste.imagePiste'/><p>{{piste.piste.nomPiste}}</p></div></span>
+     
+    </div>
+ 
   </div>
   <!--<script>window.$ = window.jQuery = require('jquery');</script>-->
   <script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.js"></script>

@@ -1,1 +1,1 @@
-var token = "qrcode";
+var token = "token";
