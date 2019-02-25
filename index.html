@@ -8,6 +8,12 @@
 </head>
 
 <body>
+  <div class="modal" v-bind:class="{ unshow : unshow }">
+      <div class="modal-content">
+        <input type="search" v-model="token" type="text" class="" id="token" placeholder="Entrer votre code barman"/>
+        <button v-on:click="disparait()">Valider</button>
+      </div>
+  </div>
   <div class="main-container">
     <div class="act">
       <div class="info">

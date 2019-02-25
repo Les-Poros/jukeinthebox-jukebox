@@ -17,7 +17,7 @@ var content = new Vue({
         .get('https://webetu.iutnc.univ-lorraine.fr/www/rimet2u/jukeinthebox/File', {
           context: document.body,
           params: {
-            "bartender": token
+            "bartender": modal.token
           }
         })
         .then((response) => {
@@ -89,7 +89,7 @@ var content = new Vue({
       axios
         .delete('https://webetu.iutnc.univ-lorraine.fr/www/rimet2u/jukeinthebox/next', {
           params: {
-            'bartender': token,
+            'bartender': modal.token,
           }
         })
         .then(() => {
@@ -109,7 +109,5 @@ var content = new Vue({
   computed: {
   },
   created() {
-    this.recupFile();
-    setInterval(function () { content.recupFile(); }, 5000);
   }
 });
