@@ -59,7 +59,9 @@ h3,h1{
 .unshow{
     visibility: hidden;
 }
-  
+  [v-cloak] {
+  display:none;
+}
 .modal {
     /* Hidden by default */
    position: fixed; /* Stay in place */
