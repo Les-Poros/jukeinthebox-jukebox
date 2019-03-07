@@ -42,5 +42,3 @@ app.on('activate', () => {
     createWindow()
   }
 })
-
-// Dans 
