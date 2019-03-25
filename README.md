@@ -14,4 +14,8 @@ Membres du projet :
     - via HTTPS : git clone https://github.com/Les-Poros/jukeinthebox-jukebox.git
 * Dans le dossier créé suite au clone du dépôt lancer :
     - npm install
+    - npm run build
     - npm start
+* Pour le lancer en mode developpement :
+    - npm install
+    - npm run dev

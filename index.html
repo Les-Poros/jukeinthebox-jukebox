@@ -1,91 +1,14 @@
 <!DOCTYPE html>
-<html>
-
-<head>
-  <meta charset="utf-8">
-  <title>Juke in the box</title>
-  <link rel="stylesheet" media="screen" type="text/css" href="index.css" />
-</head>
-
-<body>
-  <div class="modal" v-bind:class="{ unshow : unshow }">
-    <div class="modal-content">
-      <input type="search" v-model="token" type="text" class="" id="token" placeholder="Entrer votre code barman" />
-      <button v-on:click="disparait()">Valider</button>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>vue-cli</title>
+  </head>
+  <body>
+    <div id="app">
+      <Login v-if='token===""' v-model:token="token"></Login>
+      <App v-if='token!==""' v-bind:url="url" v-bind:token="token"></App>
     </div>
-  </div>
-  <div class="main-container">
-    <div class="act">
-      <div v-cloak class="info">
-        <div><img :src='firstMusic.imagePiste' v-if='firstMusic.imagePiste!=null'></div>
-        <h1 v-if='firstMusic.nomPiste!=null'>{{firstMusic.nomPiste}}</h1>
-        <h1 v-else>Pas de musique</h1>
-        <hr />
-        <h3>
-          <span v-for="(artiste,index) in firstMusic.artistes">{{artiste.prénom}} {{artiste.nom}}
-            <span v-if="index != Object.keys(firstMusic.artistes).length - 1">
-              /
-            </span>
-          </span>
-        </h3>
-        <hr />
-        <h3>
-          <span v-for="(genre,index) in firstMusic.genres">{{genre}}
-            <span v-if="index != Object.keys(firstMusic.genres).length - 1">
-              /
-            </span>
-          </span>
-        </h3>
-
-      </div>
-      <div v-cloak class="temps">
-        <div class="barre">
-          <div class="timer">{{tempsMinute(actTimer)}}</div>
-          <div class="pourcentage" v-bind:style="{width:pourcentage}"></div>
-          <div class="duration">{{tempsMinute(duration)}}</div>
-        </div>
-      </div>
-
-      <h3 v-cloak class='delimitAlbum'>Apparait dans :</h3>
-
-      <div class="albums">
-        <div class='album' v-for="(album,index) in firstMusic.albums">
-          <img v-cloak :src='album.imageAlbum'/>
-          <p v-cloak class='nom'>{{album.nomAlbum}}</p>
-          <p v-cloak class='artiste'> par
-            <span v-for="(artiste,index) in album.artistes">{{artiste.prénom}} {{artiste.nom}}
-              <span v-if="index != Object.keys(album.artistes).length - 1">
-                /
-              </span>
-            </span>
-          </p>
-          <p v-cloak class='genre'>
-            <span v-for="(genre,index) in album.genres">{{genre}}
-              <span v-if="index != Object.keys(album.genres).length - 1">
-                /
-              </span>
-            </span>
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="next" v-on:click='nextMusic()'>
-      <h3>Musiques suivantes</h3>
-      <span v-cloak v-for='(piste,index) in file.pistes' v-if="index!=0">
-        <div class='pisteFile'><img :src='piste.piste.imagePiste' />
-          <p>{{piste.piste.nomPiste}}</p>
-        </div>
-      </span>
-
-    </div>
-
-  </div>
-  <!--<script>window.$ = window.jQuery = require('jquery');</script>-->
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.js"></script>
-  <script src="https://unpkg.com/axios@0.18.0/dist/axios.js"></script>
-  <script src="node_modules/howler/dist/howler.min.js"></script>
-  <script src="token.js"></script>
-  <script src="index.js"></script>
-</body>
-
+    <script src="./dist/build.js"></script>
+  </body>
 </html>
