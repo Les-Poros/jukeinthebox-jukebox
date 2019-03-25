@@ -12,9 +12,10 @@
     "start": "electron ."
   },
   "dependencies": {
-    "electron": "4.0.1",
     "axios": "^0.18.0",
+    "electron": "4.0.1",
     "howler": "^2.1.1",
+    "qrcode.vue": "^1.6.1",
     "vue": "^2.5.11"
   },
   "browserslist": [

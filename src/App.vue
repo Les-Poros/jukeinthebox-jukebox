@@ -1,5 +1,6 @@
 <template>
   <div class="main-container">
+     <qrcode-vue :value="qrcode"></qrcode-vue>
     <div class="act">
       <div v-cloak class="info">
         <div>
@@ -62,11 +63,14 @@
       </span>
     </div>
   </div>
+  
 </template>
 
 <script>
+
 import axios from "axios";
 import { Howl, Howler } from "howler";
+import QrcodeVue from 'qrcode.vue';
 export default {
   name: "app",
   props: ["url", "token"],
@@ -80,8 +84,12 @@ export default {
       actTimer: "",
       duration: "",
       pourcentage: "",
-      firstMusic: ""
+      firstMusic: "",
+      qrcode:""
     };
+  },
+  components: {
+    QrcodeVue
   },
   methods: {
     recupFile: function() {
@@ -118,6 +126,14 @@ export default {
       var regex = /\'/gi;
       musique = musique.replace(regex, "");
       this.music = musique;
+    },
+    generateQrCode : function(){
+      this.qrcode = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      const params = new URLSearchParams();
+      params.append("bartender", this.token);
+      params.append("qrcode", this.qrcode);
+      axios
+        .post(this.url  + "qrcode", params)
     },
     playFirstMusic: function() {
       var xhr = new XMLHttpRequest();
@@ -156,8 +172,6 @@ export default {
       return minutes + ":" + (seconds < 10 ? "0" : "") + Math.round(seconds);
     },
     nextMusic: function() {
-      const params = new URLSearchParams();
-      params.append("token", this.token);
       axios
         .delete(this.url + "next", {
           params: {
@@ -179,6 +193,7 @@ export default {
     }
   },
   created() {
+    this.generateQrCode();
     this.recupFile();
     setInterval(() => {
       this.recupFile();
