@@ -1,6 +1,6 @@
 <template>
   <div class="main-container">
-     <qrcode-vue :value="qrcode"></qrcode-vue>
+     
     <div class="act">
       <div v-cloak class="info">
         <div>
@@ -54,6 +54,7 @@
       </div>
     </div>
     <div class="next" v-on:click="nextMusic()">
+      <div style="overflow : hidden">
       <h3>Musiques suivantes</h3>
       <span v-cloak v-for="(piste,index) in file.pistes" v-bind:key="index">
         <div v-if="index!=0" class="pisteFile">
@@ -61,6 +62,8 @@
           <p>{{piste.piste.nomPiste}}</p>
         </div>
       </span>
+      </div>
+      <qrcode-vue :value="qrcode" size="200" style="margin: auto auto 0 auto ; padding : 20px"></qrcode-vue>
     </div>
   </div>
   
@@ -132,8 +135,9 @@ export default {
       const params = new URLSearchParams();
       params.append("bartender", this.token);
       params.append("qrcode", this.qrcode);
-      axios
-        .post(this.url  + "qrcode", params)
+      axios.post(this.url  + "qrcode", params)
+      let self=this;
+      setTimeout(function(){ self.generateQrCode()}, 3600000);
     },
     playFirstMusic: function() {
       var xhr = new XMLHttpRequest();

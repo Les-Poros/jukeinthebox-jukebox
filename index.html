@@ -6,7 +6,7 @@
   </head>
   <body>
     <div id="app">
-      <Login v-if='token===""' v-model:token="token"></Login>
+      <Login v-if='token===""' v-bind:url="url" v-model:token="token"></Login>
       <App v-if='token!==""' v-bind:url="url" v-bind:token="token"></App>
     </div>
     <script src="./dist/build.js"></script>

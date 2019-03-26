@@ -1,26 +1,42 @@
 <template>
   <div v-cloak class="modal">
     <div class="modal-content">
-      <p class="white">Veuillez entrer votre token (qrcode)</p>
+      <p class="white">Veuillez entrer votre token</p>
       <br/>
       <input type="search" v-model="token" class id="token" placeholder="Entrer votre qrcode" v-on:keyup.enter="entrerToken()">
+      <p v-if="!saisie" class="white">Se token n'existe pas</p>
       <button v-on:click="entrerToken()">Valider</button>
     </div>
   </div>
 </template>
 
 <script>
+import axios from "axios"
 export default {
   name: "login",
+  props:["url"],
   data() {
     return {
-      token: ""
+      token: "",
+      saisie:true
     };
   },
   methods: {
     //permet de valider la saisie d'un token
     entrerToken: function() {
-         this.$emit('input', this.token);
+      axios
+              .get(this.url + "validateJukebox", {
+                context: document.body,
+                params: {
+                  bartender: this.token
+                }
+              })
+              .then(response => {
+                if (response.data.validate) 
+                      this.$emit('input', this.token);
+                else
+                    this.saisie=false;
+              });
     }
   }
 };
