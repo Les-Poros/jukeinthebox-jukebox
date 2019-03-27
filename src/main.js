@@ -1,10 +1,14 @@
 import Vue from 'vue'
 import App from './App.vue'
 import Login from './Login.vue'
+
+import conf from "./conf/conf.json"
+
 new Vue({
   el: '#app',
   data:{
-    url:"https://webetu.iutnc.univ-lorraine.fr/www/rimet2u/jukeinthebox/",
+    url:conf.apiUrl,
+    musicurl:conf.musicUrl,
     token:""
   },
   components: { App,Login }

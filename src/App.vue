@@ -76,7 +76,7 @@ import { Howl, Howler } from "howler";
 import QrcodeVue from 'qrcode.vue';
 export default {
   name: "app",
-  props: ["url", "token"],
+  props: ["url", "token","musicurl"],
   data() {
     return {
       file: "",
@@ -127,7 +127,9 @@ export default {
       });
       musique += "-" + this.firstMusic["nomPiste"];
       var regex = /\'/gi;
-      musique = musique.replace(regex, "");
+      musique = musique.replace(regex, "");  
+      regex = /\ /gi;
+      musique = musique.replace(regex, "_");
       this.music = musique;
     },
     generateQrCode : function(){
@@ -158,7 +160,7 @@ export default {
           content.sound.play();
         }
       });
-      xhr.open("GET", this.url + "musique/" + this.music + ".mp3");
+      xhr.open("GET", this.musicurl + this.music + ".mp3");
       xhr.responseType = "blob";
       xhr.send(null);
     },
