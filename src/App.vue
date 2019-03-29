@@ -1,6 +1,5 @@
 <template>
   <div class="main-container">
-     
     <div class="act">
       <div v-cloak class="info">
         <div>
@@ -24,11 +23,15 @@
         </h3>
       </div>
       <div v-cloak class="temps">
-        <div class="barre">
-          <div class="timer">{{tempsMinute(actTimer)}}</div>
+        <div v-if="duration" class="barre">
+          <div class="timer">
+            {{tempsMinute(actTimer)}}
+            <span v-if="action=='pause'">PAUSE</span>
+          </div>
           <div class="pourcentage" v-bind:style="{width:pourcentage}"></div>
           <div class="duration">{{tempsMinute(duration)}}</div>
         </div>
+        <div v-else-if="firstMusic">Chargement ...</div>
       </div>
 
       <h3 v-cloak class="delimitAlbum">Apparait dans :</h3>
@@ -55,40 +58,39 @@
     </div>
     <div class="next" v-on:click="nextMusic()">
       <div style="overflow : hidden">
-      <h3>Musiques suivantes</h3>
-      <span v-cloak v-for="(piste,index) in file.pistes" v-bind:key="index">
-        <div v-if="index!=0" class="pisteFile">
-          <img :src="piste.piste.imagePiste">
-          <p>{{piste.piste.nomPiste}}</p>
-        </div>
-      </span>
+        <h3>Musiques suivantes</h3>
+        <span v-cloak v-for="(piste,index) in file.pistes" v-bind:key="index">
+          <div v-if="index!=0" class="pisteFile">
+            <img :src="piste.piste.imagePiste">
+            <p>{{piste.piste.nomPiste}}</p>
+          </div>
+        </span>
       </div>
       <qrcode-vue :value="qrcode" size="200" style="margin: auto auto 0 auto ; padding : 20px"></qrcode-vue>
     </div>
   </div>
-  
 </template>
 
 <script>
-
 import axios from "axios";
 import { Howl, Howler } from "howler";
-import QrcodeVue from 'qrcode.vue';
+import QrcodeVue from "qrcode.vue";
 export default {
   name: "app",
-  props: ["url", "token","musicurl"],
+  props: ["url", "token", "musicurl"],
   data() {
     return {
       file: "",
       idmusic: "",
       music: "",
+      soundId: "",
       sound: "",
       timer: "",
       actTimer: "",
       duration: "",
       pourcentage: "",
       firstMusic: "",
-      qrcode:"",
+      qrcode: "",
       action: ""
     };
   },
@@ -128,19 +130,27 @@ export default {
       });
       musique += "-" + this.firstMusic["nomPiste"];
       var regex = /\'/gi;
-      musique = musique.replace(regex, "");  
+      musique = musique.replace(regex, "");
       regex = /\ /gi;
       musique = musique.replace(regex, "_");
       this.music = musique;
     },
-    generateQrCode : function(){
-      this.qrcode = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    generateQrCode: function() {
+      this.qrcode =
+        Math.random()
+          .toString(36)
+          .substring(2, 15) +
+        Math.random()
+          .toString(36)
+          .substring(2, 15);
       const params = new URLSearchParams();
       params.append("bartender", this.token);
       params.append("qrcode", this.qrcode);
-      axios.post(this.url  + "qrcode", params)
-      let self=this;
-      setTimeout(function(){ self.generateQrCode()}, 3600000);
+      axios.post(this.url + "qrcode", params);
+      let self = this;
+      setTimeout(function() {
+        self.generateQrCode();
+      }, 3600000);
     },
     playFirstMusic: function() {
       var xhr = new XMLHttpRequest();
@@ -152,13 +162,15 @@ export default {
             format: ["mp3"]
           });
           content.sound.on("play", function() {
-            content.duration = this.duration();
             content.renderTimer();
+          });
+          content.sound.on("load", function() {
+            content.duration = this.duration();
+            if(content.action=="play")content.play();
           });
           content.sound.on("end", function() {
             content.nextMusic();
           });
-          content.sound.play();
         }
       });
       xhr.open("GET", this.musicurl + this.music + ".mp3");
@@ -198,17 +210,21 @@ export default {
       clearTimeout(this.timer);
       Howler.unload();
     },
-    play: function(){
-      if (this.sound != "") {
-        this.sound.play();
-      }
+    play: function() {
+      if (this.sound != "" && !this.sound.playing(this.soundId)) this.soundId = this.sound.play();
     },
-    pause: function(){
-      this.sound.pause();
+    pause: function() {
+       if (this.sound != "") {this.sound.pause();}
     },
-    actionJukebox: function(){
+    repeat: function() {
+      if (this.sound != "") {this.sound.seek(0);}
+      const params = new URLSearchParams();
+      params.append("bartender", this.token);
+      axios.post(this.url + "play", null, { params: params });
+    },
+    actionJukebox: function() {
       axios
-        .get(this.url + "getJukebox", {
+        .get(this.url + "getJukeboxAction", {
           context: document.body,
           params: {
             bartender: this.token
@@ -217,26 +233,30 @@ export default {
         .then(response => {
           if (response.data != this.action) {
             this.action = response.data;
-            switch(this.action){
-              case 'play' :
-                this.play();
-                break;
-              case 'pause' :
-                this.pause();
-                break;
-              case 'next' :
-                this.nextMusic();
-                break;
-              case 'repeat':
-                this.clearMusic();
-                this.playFirstMusic();
-                break;
-            }
+           
+              switch (this.action) {
+                case "play":
+                  this.play();
+                  break;
+                case "pause":
+                  this.pause();
+                  break;
+                case "next":
+                  this.nextMusic();
+                  break;
+                case "repeat":
+                  this.repeat();
+                  break;
+              }
+            
           }
         });
     }
   },
   created() {
+    const params = new URLSearchParams();
+    params.append("bartender", this.token);
+    axios.post(this.url + "play", null, { params: params });
     this.generateQrCode();
     this.recupFile();
     setInterval(() => {
