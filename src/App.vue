@@ -163,6 +163,9 @@ export default {
       xhr.open("GET", this.musicurl + this.music + ".mp3");
       xhr.responseType = "blob";
       xhr.send(null);
+      axios.post(this.apiurl + "play", params).then(() => {
+          this.getFirstFile();
+        });
     },
     renderTimer: function() {
       if (this.sound != "") this.actTimer = this.sound.seek();
@@ -196,6 +199,43 @@ export default {
       this.pourcentage = "";
       clearTimeout(this.timer);
       Howler.unload();
+    },
+    play: function(){
+      this.sound.on("play", function() {
+            content.duration = this.duration();
+            content.renderTimer();
+          });
+    },
+    pause: function(){
+      this.sound.on("stop", function() {
+            content.duration = this.duration();
+            content.renderTimer();
+          });
+    },
+    actionJukebox: function(){
+      axios
+        .get(this.url + "getJukebox", {
+          context: document.body,
+          params: {
+            bartender: this.token
+          }
+        })
+        .then(response => {
+          if (response.data != this.file) {
+            this.file = response.data;
+            switch(this.file[action]){
+              case 'play' :
+              this.play();
+               break;
+              case 'pause' :
+              this.pause();
+               break;
+              case 'next' :
+              this.nextMusic();
+               break;
+            }
+          }
+        });
     }
   },
   created() {
@@ -204,6 +244,9 @@ export default {
     setInterval(() => {
       this.recupFile();
     }, 15000);
+    setInterval(() => {
+      this.actionJukebox();
+    }, 1000);
   }
 };
 </script>
