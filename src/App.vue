@@ -88,7 +88,8 @@ export default {
       duration: "",
       pourcentage: "",
       firstMusic: "",
-      qrcode:""
+      qrcode:"",
+      action: ""
     };
   },
   components: {
@@ -163,9 +164,6 @@ export default {
       xhr.open("GET", this.musicurl + this.music + ".mp3");
       xhr.responseType = "blob";
       xhr.send(null);
-      axios.post(this.apiurl + "play", params).then(() => {
-          this.getFirstFile();
-        });
     },
     renderTimer: function() {
       if (this.sound != "") this.actTimer = this.sound.seek();
@@ -201,16 +199,12 @@ export default {
       Howler.unload();
     },
     play: function(){
-      this.sound.on("play", function() {
-            content.duration = this.duration();
-            content.renderTimer();
-          });
+      if (this.sound != "") {
+        this.sound.play();
+      }
     },
     pause: function(){
-      this.sound.on("stop", function() {
-            content.duration = this.duration();
-            content.renderTimer();
-          });
+      this.sound.pause();
     },
     actionJukebox: function(){
       axios
@@ -221,18 +215,22 @@ export default {
           }
         })
         .then(response => {
-          if (response.data != this.file) {
-            this.file = response.data;
-            switch(this.file[action]){
+          if (response.data != this.action) {
+            this.action = response.data;
+            switch(this.action){
               case 'play' :
-              this.play();
-               break;
+                this.play();
+                break;
               case 'pause' :
-              this.pause();
-               break;
+                this.pause();
+                break;
               case 'next' :
-              this.nextMusic();
-               break;
+                this.nextMusic();
+                break;
+              case 'repeat':
+                this.clearMusic();
+                this.playFirstMusic();
+                break;
             }
           }
         });
