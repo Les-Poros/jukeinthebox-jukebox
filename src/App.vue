@@ -127,8 +127,6 @@ export default {
       let musique = "";
       let artistes="";
       this.firstMusic["artistes"].forEach(artiste => {
-        regex = /\ /gi;
-      artistes = artistes.replace(regex, "%20");
         artistes += artiste["nom"];
       });
       musique += "-" + this.firstMusic["nomPiste"];
