@@ -115,6 +115,10 @@ export default {
                 this.idmusic = this.file.pistes[0]["idFile"];
                 this.nomMusic();
                 this.playFirstMusic();
+                const params = {"bartender" : this.token, "idPiste": this.idmusic, "genres": this.file.pistes[0]["piste"]["genres"]};
+                console.log(this.file.pistes[0]["piste"]["genres"]);
+                axios.post(this.url + "countMoreStatPistes", null, { params: params });
+                axios.post(this.url + "countMoreStatGenres", null , { params: params});
               }
             } else {
               this.firstMusic = "";
