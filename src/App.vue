@@ -125,15 +125,20 @@ export default {
     },
     nomMusic: function(piste) {
       let musique = "";
+      let artistes="";
       this.firstMusic["artistes"].forEach(artiste => {
-        musique += artiste["nom"];
+        regex = /\ /gi;
+      artistes = artistes.replace(regex, "%20");
+        artistes += artiste["nom"];
       });
       musique += "-" + this.firstMusic["nomPiste"];
       var regex = /\'/gi;
       musique = musique.replace(regex, "");
       regex = /\ /gi;
       musique = musique.replace(regex, "_");
-      this.music = musique;
+      this.music = artistes+musique;
+
+      console.log(this.music);
     },
     generateQrCode: function() {
       this.qrcode =
