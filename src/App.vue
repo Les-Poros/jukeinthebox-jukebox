@@ -81,7 +81,7 @@ export default {
   data() {
     return {
       file: "",
-      idmusic: "",
+      idmusicfile: "",
       music: "",
       soundId: "",
       sound: "",
@@ -110,15 +110,19 @@ export default {
           if (response.data != this.file) {
             this.file = response.data;
             if (this.file.pistes.length > 0) {
-              if (this.file.pistes[0]["idFile"] != this.idmusic) {
+              if (this.file.pistes[0]["idFile"] != this.idmusicfile) {
                 this.firstMusic = this.file.pistes[0]["piste"];
-                this.idmusic = this.file.pistes[0]["idFile"];
+                this.idmusicfile = this.file.pistes[0]["idFile"];
                 this.nomMusic();
                 this.playFirstMusic();
+                const params = new URLSearchParams();
+                params.append("bartender", this.token);
+                params.append("idPiste", this.firstMusic["idPiste"]);
+                axios.post(this.url + "pushStatsMusic", params);
               }
             } else {
               this.firstMusic = "";
-              this.idmusic = "";
+              this.idmusicfile = "";
             }
           }
         });
@@ -169,7 +173,7 @@ export default {
           });
           content.sound.on("load", function() {
             content.duration = this.duration();
-            if(content.action=="play")content.play();
+            if (content.action == "play") content.play();
           });
           content.sound.on("end", function() {
             content.nextMusic();
@@ -214,13 +218,18 @@ export default {
       Howler.unload();
     },
     play: function() {
-      if (this.sound != "" && !this.sound.playing(this.soundId)) this.soundId = this.sound.play();
+      if (this.sound != "" && !this.sound.playing(this.soundId))
+        this.soundId = this.sound.play();
     },
     pause: function() {
-       if (this.sound != "") {this.sound.pause();}
+      if (this.sound != "") {
+        this.sound.pause();
+      }
     },
     repeat: function() {
-      if (this.sound != "") {this.sound.seek(0);}
+      if (this.sound != "") {
+        this.sound.seek(0);
+      }
       const params = new URLSearchParams();
       params.append("bartender", this.token);
       axios.post(this.url + "play", null, { params: params });
@@ -236,22 +245,21 @@ export default {
         .then(response => {
           if (response.data != this.action) {
             this.action = response.data;
-           
-              switch (this.action) {
-                case "play":
-                  this.play();
-                  break;
-                case "pause":
-                  this.pause();
-                  break;
-                case "next":
-                  this.nextMusic();
-                  break;
-                case "repeat":
-                  this.repeat();
-                  break;
-              }
-            
+
+            switch (this.action) {
+              case "play":
+                this.play();
+                break;
+              case "pause":
+                this.pause();
+                break;
+              case "next":
+                this.nextMusic();
+                break;
+              case "repeat":
+                this.repeat();
+                break;
+            }
           }
         });
     }
