@@ -1,7 +1,8 @@
 <template>
   <div class="main-container">
     <div class="act">
-      <div v-cloak class="info">
+      <div v-cloak v-if="blindtest && actTimer<25 && firstMusic">Essayer de deviner la musique :p</div>
+      <div v-cloak v-else class="info">
         <div>
           <img :src="firstMusic.imagePiste" v-if="firstMusic.imagePiste!=null">
         </div>
@@ -35,8 +36,8 @@
       </div>
 
       <h3 v-cloak class="delimitAlbum">Apparait dans :</h3>
-
-      <div class="albums">
+      <div v-cloak v-if="blindtest && actTimer<25 && firstMusic">Si tu trouve les albums tu es le meilleur</div>
+      <div v-else class="albums">
         <div class="album" v-for="(album,index) in firstMusic.albums" v-bind:key="index">
           <img v-cloak :src="album.imageAlbum">
           <p v-cloak class="nom">{{album.nomAlbum}}</p>
@@ -57,7 +58,7 @@
       </div>
     </div>
     <div class="next" v-on:click="nextMusic()">
-      <div style="overflow : hidden">
+      <div style="overflow : hidden" v-if="!blindtest">
         <h3>Musiques suivantes</h3>
         <span v-cloak v-for="(piste,index) in file.pistes" v-bind:key="index">
           <div v-if="index!=0" class="pisteFile">
@@ -91,7 +92,8 @@ export default {
       pourcentage: "",
       firstMusic: "",
       qrcode: "",
-      action: ""
+      action: "",
+      blindtest: ""
     };
   },
   components: {
@@ -129,7 +131,7 @@ export default {
     },
     nomMusic: function(piste) {
       let musique = "";
-      let artistes="";
+      let artistes = "";
       this.firstMusic["artistes"].forEach(artiste => {
         artistes += artiste["nom"];
       });
@@ -138,9 +140,7 @@ export default {
       musique = musique.replace(regex, "");
       regex = /\ /gi;
       musique = musique.replace(regex, "_");
-      this.music = artistes+musique;
-
-      console.log(this.music);
+      this.music = artistes + musique;
     },
     generateQrCode: function() {
       this.qrcode =
@@ -168,11 +168,11 @@ export default {
             src: [window.URL.createObjectURL(xhr.response)],
             format: ["mp3"]
           });
-          content.sound.on("play", function() {
-            content.renderTimer();
-          });
           content.sound.on("load", function() {
-            content.duration = this.duration();
+            if (content.blindtest) {
+              content.duration = 30;
+              content.actTimer = 0;
+            } else content.duration = this.duration();
             if (content.action == "play") content.play();
           });
           content.sound.on("end", function() {
@@ -185,7 +185,11 @@ export default {
       xhr.send(null);
     },
     renderTimer: function() {
-      if (this.sound != "") this.actTimer = this.sound.seek();
+      if (this.sound != "")
+        if (this.blindtest)
+          if (this.actTimer >= 30) this.nextMusic();
+          else this.actTimer++;
+        else this.actTimer = this.sound.seek();
       this.pourcentage = (this.actTimer / this.duration) * 100 + "%";
       const content = this;
       this.timer = setTimeout(function() {
@@ -198,37 +202,49 @@ export default {
       return minutes + ":" + (seconds < 10 ? "0" : "") + Math.round(seconds);
     },
     nextMusic: function() {
-      axios
-        .delete(this.url + "next", {
-          params: {
-            bartender: this.token
-          }
-        })
-        .then(() => {
-          this.clearMusic();
-          this.recupFile();
-        });
+      if (this.firstMusic)
+        axios
+          .delete(this.url + "next", {
+            params: {
+              bartender: this.token
+            }
+          })
+          .then(() => {
+            this.clearMusic();
+            this.recupFile();
+          });
+      else this.clearMusic();
     },
     clearMusic: function() {
       this.actTimer = "";
       this.duree = "";
       this.duration = "";
       this.pourcentage = "";
+      this.sound = "";
       clearTimeout(this.timer);
       Howler.unload();
     },
     play: function() {
-      if (this.sound != "" && !this.sound.playing(this.soundId))
+      if (this.sound != "" && !this.sound.playing(this.soundId)) {
         this.soundId = this.sound.play();
+        if (this.blindtest && this.actTimer == 0) {
+          this.sound.seek(30);
+        }
+        this.renderTimer();
+      }
     },
     pause: function() {
       if (this.sound != "") {
+        clearTimeout(this.timer);
         this.sound.pause();
       }
     },
     repeat: function() {
       if (this.sound != "") {
-        this.sound.seek(0);
+        if (this.blindtest) {
+          this.actTimer = 0;
+          this.sound.seek(30);
+        } else this.sound.seek(0);
       }
       const params = new URLSearchParams();
       params.append("bartender", this.token);
@@ -243,9 +259,14 @@ export default {
           }
         })
         .then(response => {
-          if (response.data != this.action) {
-            this.action = response.data;
-
+          if (response.data.blindtest != this.blindtest) {
+            if (this.blindtest !== "") {
+              this.blindtest = response.data.blindtest;
+              this.nextMusic();
+            } else this.blindtest = response.data.blindtest;
+          }
+          if (response.data.action != this.action) {
+            this.action = response.data.action;
             switch (this.action) {
               case "play":
                 this.play();
@@ -268,6 +289,7 @@ export default {
     const params = new URLSearchParams();
     params.append("bartender", this.token);
     axios.post(this.url + "play", null, { params: params });
+    this.actionJukebox();
     this.generateQrCode();
     this.recupFile();
     setInterval(() => {
