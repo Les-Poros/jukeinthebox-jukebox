@@ -1,5 +1,16 @@
 <template>
   <div class="main-container">
+    <div class="prev">
+      <div style="overflow : hidden">
+        <h3>Ont été jouées</h3>
+        <span v-cloak v-for="(piste,index) in pistesPrev" v-bind:key="index">
+          <div class="pisteFile">
+            <img :src="piste.imagePiste">
+            <p>{{piste.nomPiste}}</p>
+          </div>
+        </span>
+      </div>
+    </div>
     <div class="act">
       <div v-cloak v-if="blindtest && actTimer<25 && firstMusic">Essayer de deviner la musique :p</div>
       <div v-cloak v-else class="info">
@@ -93,7 +104,8 @@ export default {
       firstMusic: "",
       qrcode: "",
       action: "",
-      blindtest: ""
+      blindtest: "",
+      pistesPrev: []
     };
   },
   components: {
@@ -202,6 +214,14 @@ export default {
       return minutes + ":" + (seconds < 10 ? "0" : "") + Math.round(seconds);
     },
     nextMusic: function() {
+      if (this.pistesPrev.length < 5 ) {
+        this.pistesPrev.push(this.firstMusic);
+      }
+      else if (this.pistesPrev.length == 5) {
+        this.pistesPrev.splice(0, 1);
+        this.pistesPrev.push(this.firstMusic);
+      }
+      console.log(this.pistesPrev);
       if (this.firstMusic)
         axios
           .delete(this.url + "next", {
@@ -294,7 +314,7 @@ export default {
     this.recupFile();
     setInterval(() => {
       this.recupFile();
-    }, 15000);
+    }, 5000);
     setInterval(() => {
       this.actionJukebox();
     }, 1000);
@@ -469,9 +489,24 @@ h1 {
   flex-direction: column;
   text-align: center;
 }
+
 .next h3 {
   margin: 10px;
 }
+
+.prev{
+  width: 20%;
+  background-color: #456072;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.prev h3 {
+  margin: 10px;
+}
+
 .pisteFile {
   margin-left: auto;
   margin-right: auto;
