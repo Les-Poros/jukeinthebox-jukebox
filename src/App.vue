@@ -4,15 +4,19 @@
       <div style="overflow : hidden">
         <h3>Ont été jouées</h3>
         <span v-cloak v-for="(piste,index) in pistesPrev" v-bind:key="index">
-          <div class="pisteFile">
+          <div class="pistePassee">
             <img :src="piste.imagePiste">
-            <p>{{piste.nomPiste}}</p>
+            <p><span>
+              <span v-for="(artiste,index2) in piste.artistes" v-bind:key="index2">
+              <span v-if="index2 != 0"> /</span>
+                {{artiste.prénom}} {{artiste.nom}}</span>
+            </span> - {{piste.nomPiste}}</p>
           </div>
         </span>
       </div>
     </div>
     <div class="act">
-      <div v-cloak v-if="blindtest && actTimer<25 && firstMusic">Essayer de deviner la musique :p</div>
+      <div v-cloak v-if="blindtest && actTimer<25 && firstMusic">Essayez de deviner la musique <img src="https://cdn.discordapp.com/attachments/506130598515965953/562975846680494089/music-player.png" style="height: 20px;"/></div>
       <div v-cloak v-else class="info">
         <div>
           <img :src="firstMusic.imagePiste" v-if="firstMusic.imagePiste!=null">
@@ -46,8 +50,8 @@
         <div v-else-if="firstMusic">Chargement ...</div>
       </div>
 
-      <h3 v-cloak class="delimitAlbum">Apparait dans :</h3>
-      <div v-cloak v-if="blindtest && actTimer<25 && firstMusic">Si tu trouve les albums tu es le meilleur</div>
+      <h3 v-cloak class="delimitAlbum">Apparaît dans :</h3>
+      <div v-cloak v-if="blindtest && actTimer<25 && firstMusic">Si vous trouvez les albums, vous êtes le meilleur !</div>
       <div v-else class="albums">
         <div class="album" v-for="(album,index) in firstMusic.albums" v-bind:key="index">
           <img v-cloak :src="album.imageAlbum">
@@ -528,6 +532,34 @@ h1 {
 }
 
 .pisteFile img {
+  width: 50px;
+  height: 50px;
+}
+
+.pistePassee {
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 10px;
+  width: 90%;
+  display: grid;
+  box-sizing: border-box;
+  grid-template-columns: 50px 1fr;
+  border: solid 1px #0f2636;
+  background-color: #dae2fe;
+  color: black;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.pistePassee p {
+  margin: 0;
+  padding-left: 5px;
+}
+
+.pistePassee img {
   width: 50px;
   height: 50px;
 }
