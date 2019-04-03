@@ -221,7 +221,6 @@ export default {
         this.pistesPrev.splice(0, 1);
         this.pistesPrev.push(this.firstMusic);
       }
-      console.log(this.pistesPrev);
       if (this.firstMusic)
         axios
           .delete(this.url + "next", {
